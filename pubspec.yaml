@@ -1,0 +1,65 @@
+name: autographa_survey
+description: "A new Flutter project."
+
+publish_to: "none"
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.5.2 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  http: ^1.0.0
+  fluttertoast: ^8.2.5
+  provider: ^6.0.5
+  shared_preferences: ^2.2.2
+  google_fonts: ^6.2.1
+  flutter_svg: ^2.0.17
+  shimmer: ^3.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  flutter_native_splash: ^2.3.10
+  flutter_launcher_icons: ^0.14.2
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/logo.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  web:
+    generate: true
+    image_path: "assets/images/logo.png"
+    background_color: "#DEAAFF"
+    theme_color: "#DEAAFF"
+   
+
+flutter_native_splash:
+  color: "#DEAAFF"
+  image: assets/images/logo.png
+  # branding: assets/branding.png
+  color_dark: "#000000"
+  image_dark: assets/images/logo.png
+  # branding_dark: assets/branding.png
+
+  android_12:
+    image: assets/images/logo.png
+    icon_background_color: "#DEAAFF"
+    image_dark: assets/images/logo.png
+    icon_background_color_dark: "#000000"
+
+  web: true
+
