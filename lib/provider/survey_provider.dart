@@ -1,9 +1,8 @@
-import 'dart:convert';
 import 'package:autographa_survey/model/survey_question_model.dart';
 import 'package:flutter/material.dart';
-import '../model/survey_answer_model.dart';
-import 'repository.dart';
-import 'utils.dart';
+import 'package:autographa_survey/model/survey_answer_model.dart';
+import 'package:autographa_survey/provider/repository.dart';
+import 'package:autographa_survey/provider/utils.dart';
 
 class SurveyProvider extends ChangeNotifier {
   final Repository _repository = Repository();
@@ -127,8 +126,7 @@ class SurveyProvider extends ChangeNotifier {
       final response = await _repository.fetchSurveyQuestions(surveyId);
 
       if (response.success && response.data != null) {
-        final jsonString = json.encode(response.data);
-        _surveyQuestionsList = surveyQuestionModelFromJson(jsonString);
+        _surveyQuestionsList = response.data!;
         _state = LoadingState.idle;
         return _surveyQuestionsList;
       } else {

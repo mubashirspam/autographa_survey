@@ -1,10 +1,11 @@
-import 'package:autographa_survey/model/survey_list_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../model/survey_list_model.dart';
 import '../provider/survey_provider.dart';
 import '../provider/utils.dart';
 import 'widgets/bottom_appbar_widget.dart';
+import 'widgets/header_text_widget.dart';
 import 'widgets/question_widget.dart';
 
 class SurveyScreen extends StatelessWidget {
@@ -20,7 +21,7 @@ class SurveyScreen extends StatelessWidget {
     return Scaffold(
       extendBody: true,
       backgroundColor: Colors.white,
-      bottomNavigationBar: BottomAppbarWidget( 
+      bottomNavigationBar: BottomAppbarWidget(
         surveyId: survey.id.toString(),
         userId: '1',
       ),
@@ -55,36 +56,9 @@ class SurveyScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  RichText(
-                    text: TextSpan(
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.black,
-                      ),
-                      children: [
-                        const TextSpan(
-                          text: 'Question ',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
-                        ),
-                        TextSpan(
-                          text: (surveyProvider.currentQuestionIndex + 1)
-                              .toString()
-                              .padLeft(2, '0'),
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                            fontSize: 18,
-                          ),
-                        ),
-                        TextSpan(
-                          text: '/${surveyProvider.surveyQuestionsList.length}',
-                          style: const TextStyle(
-                              color: Colors.black, fontSize: 14),
-                        ),
-                      ],
-                    ),
-                  ),
+                  buildHeaderText(
+                      surveyProvider.currentQuestionIndex + 1,
+                      surveyProvider.surveyQuestionsList.length),
                   const SizedBox(height: 20),
                   Expanded(
                     child: QuestionWidget(
@@ -102,3 +76,4 @@ class SurveyScreen extends StatelessWidget {
     );
   }
 }
+

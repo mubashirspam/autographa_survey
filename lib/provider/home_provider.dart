@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../model/survey_list_model.dart';
 import 'repository.dart';
@@ -25,8 +24,7 @@ class HomeProvider extends ChangeNotifier {
       final response = await _repository.getSurveys();
 
       if (response.success && response.data != null) {
-        final jsonString = json.encode(response.data);
-        _surveyList = surveyListFromJson(jsonString);
+        _surveyList = response.data!;
         _state = LoadingState.idle;
         return _surveyList;
       } else {
@@ -50,5 +48,3 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 }
-
-
