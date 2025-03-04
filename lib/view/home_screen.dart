@@ -4,29 +4,39 @@ import 'package:provider/provider.dart';
 import 'package:flutter_svg/svg.dart';
 import '../provider/home_provider.dart';
 import '../provider/survey_provider.dart';
-import '../provider/utils.dart';
 import 'widgets/bottom_appbar_widget.dart';
 import 'widgets/list_item_card.dart';
 import 'widgets/question_widget.dart';
 import 'widgets/shimmer_loading.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<HomeProvider>().fetchAllSurveys();
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = Provider.of<HomeProvider>(context, listen: false);
-      provider.getSurveyList();
-    });
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        leading: IconButton(
-          icon: SvgPicture.asset('assets/icons/menu.svg'),
-          onPressed: () {},
+        leading: Builder(
+          builder: (BuildContext context) {
+            return IconButton(
+              icon: SvgPicture.asset('assets/icons/menu.svg'),
+              onPressed: () {},
+            );
+          },
         ),
         title: const Text(
           'Autographa Surveys',
@@ -41,106 +51,119 @@ class HomeScreen extends StatelessWidget {
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          if (constraints.maxWidth < 1000) {
+          if (constraints.maxWidth < 700) {
             return SafeArea(
               child: Consumer<HomeProvider>(
                 builder: (context, provider, child) {
                   return RefreshIndicator(
                     onRefresh: () async {
-                      provider.resetError();
-                      await provider.getSurveyList();
+                      await provider.fetchAllSurveys(isRefresh: true);
                     },
-                    child: provider.state == LoadingState.loading &&
-                            provider.surveyList.isEmpty
+                    child: provider.surveyList.isLoading
                         ? const ShimmerLoading()
-                        : provider.state == LoadingState.error &&
-                                provider.surveyList.isEmpty
+                        : provider.surveyList.isError ||
+                                provider.surveyList.data?.isEmpty == true
                             ? Center(
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text(provider.error ??
+                                    Text(provider.surveyList.error ??
                                         'Error fetching surveys'),
                                     const SizedBox(height: 16),
                                     ElevatedButton(
                                       onPressed: () {
-                                        provider.resetError();
-                                        provider.getSurveyList();
+                                        provider.fetchAllSurveys(
+                                            isRefresh: true);
                                       },
                                       child: const Text('Retry'),
                                     ),
                                   ],
                                 ),
                               )
-                            : ListView.builder(
-                                padding: const EdgeInsets.all(10),
-                                itemCount: provider.surveyList.length,
-                                itemBuilder: (context, index) {
-                                  return Padding(
-                                    padding: const EdgeInsets.only(bottom: 8),
-                                    child: ListItemCard(
-                                      index: index,
-                                      surveyData: provider.surveyList[index],
-                                    ),
-                                  );
-                                },
-                              ),
+                            : provider.surveyList.isSuccess &&
+                                    provider.surveyList.data!.isNotEmpty
+                                ? ListView.builder(
+                                    padding: const EdgeInsets.all(10),
+                                    itemCount: provider.surveyList.data!.length,
+                                    itemBuilder: (context, index) {
+                                      return ListItemCard(
+                                        isDesktop: false,
+                                        index: index,
+                                        surveyData:
+                                            provider.surveyList.data![index],
+                                        isSelected: provider
+                                                .selectedResponse?.id ==
+                                            provider.surveyList.data![index].id,
+                                      );
+                                    },
+                                  )
+                                : const SizedBox(),
                   );
                 },
               ),
             );
           }
+
           return SafeArea(
             child: Row(
               children: [
-                Expanded(
-                  flex: 1,
-                  child: SizedBox(
-                    child: Consumer<HomeProvider>(
+                SizedBox(
+                  width: 400,
+                  child: _buildContainer(
+                    Consumer<HomeProvider>(
                       builder: (context, provider, child) {
                         return RefreshIndicator(
                           onRefresh: () async {
-                            provider.resetError();
-                            await provider.getSurveyList();
+                            await provider.fetchAllSurveys(isRefresh: true);
+                            return;
                           },
-                          child: provider.state == LoadingState.loading &&
-                                  provider.surveyList.isEmpty
+                          child: provider.surveyList.isLoading &&
+                                  provider.surveyList.data?.isEmpty == true
                               ? const ShimmerLoading()
-                              : provider.state == LoadingState.error &&
-                                      provider.surveyList.isEmpty
+                              : provider.surveyList.isError ||
+                                      provider.surveyList.data?.isEmpty == true
                                   ? Center(
                                       child: Column(
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
                                         children: [
-                                          Text(provider.error ??
+                                          Text(provider.surveyList.error ??
                                               'Error fetching surveys'),
                                           const SizedBox(height: 16),
                                           ElevatedButton(
                                             onPressed: () {
-                                              provider.resetError();
-                                              provider.getSurveyList();
+                                              provider.fetchAllSurveys(
+                                                  isRefresh: true);
                                             },
                                             child: const Text('Retry'),
                                           ),
                                         ],
                                       ),
                                     )
-                                  : ListView.builder(
-                                      padding: const EdgeInsets.all(10),
-                                      itemCount: provider.surveyList.length,
-                                      itemBuilder: (context, index) {
-                                        return Padding(
-                                          padding:
-                                              const EdgeInsets.only(bottom: 8),
-                                          child: ListItemCard(
-                                            index: index,
-                                            surveyData:
-                                                provider.surveyList[index],
-                                          ),
-                                        );
-                                      },
-                                    ),
+                                  : provider.surveyList.isSuccess &&
+                                          provider.surveyList.data!.isNotEmpty
+                                      ? ListView.builder(
+                                          // padding: const EdgeInsets.all(10),
+                                          itemCount:
+                                              provider.surveyList.data!.length,
+                                          itemBuilder: (context, index) {
+                                            return Padding(
+                                              padding: const EdgeInsets.only(
+                                                  bottom: 8),
+                                              child: ListItemCard(
+                                                isDesktop: true,
+                                                index: index,
+                                                surveyData: provider
+                                                    .surveyList.data![index],
+                                                isSelected: provider
+                                                        .selectedResponse?.id ==
+                                                    provider.surveyList
+                                                        .data![index].id,
+                                              ),
+                                            );
+                                          },
+                                        )
+                                      : const SizedBox(),
                         );
                       },
                     ),
@@ -150,58 +173,58 @@ class HomeScreen extends StatelessWidget {
                   flex: 3,
                   child: Consumer<SurveyProvider>(
                     builder: (context, surveyProvider, child) {
-                      if (surveyProvider.state == LoadingState.loading) {
+                      final response =
+                          context.read<HomeProvider>().selectedResponse;
+                      if (surveyProvider.questionResponse.isLoading) {
                         return const Center(child: CircularProgressIndicator());
                       }
-                      if (surveyProvider.state == LoadingState.error) {
-                        return Center(child: Text(surveyProvider.error!));
+                      if (surveyProvider.questionResponse.isError) {
+                        return Center(
+                            child: Text(surveyProvider.questionResponse.error ??
+                                " Something went wrong"));
                       }
-                      if (surveyProvider.state == LoadingState.idle &&
-                          surveyProvider.surveyQuestionsList.isNotEmpty) {
-                        return Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildContainer(
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      flex: 3,
-                                      child: buildHeaderText(
-                                          surveyProvider.currentQuestionIndex +
-                                              1,
-                                          surveyProvider
-                                              .surveyQuestionsList.length),
-                                    ),
-                                    const SizedBox(width: 20),
-                                    Expanded(
-                                      flex: 1,
-                                      child: BottomAppbarWidget(
-                                        surveyId: surveyProvider
-                                            .surveyQuestionsList[surveyProvider
-                                                .currentQuestionIndex]
-                                            .surveyId
-                                            .toString(),
-                                        userId: '1',
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                      if (surveyProvider.questionResponse.isSuccess &&
+                          surveyProvider.questionList.isNotEmpty &&
+                          response != null) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildContainer(
+                              padding: EdgeInsets.all(0),
+                              margin: EdgeInsets.all(10)
+                                  .copyWith(left: 0, bottom: 0),
+                              Row(
+                                children: [
+                                  SizedBox(width: 16),
+                                  Expanded(
+                                    flex: 3,
+                                    child: buildHeaderText(
+                                        surveyProvider.currentQuestionIndex + 1,
+                                        surveyProvider.questionList.length),
+                                  ),
+                                  const SizedBox(width: 20),
+                                  Expanded(
+                                    flex: 1,
+                                    child:
+                                        BottomAppbarWidget(response: response),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(height: 20),
-                              Expanded(
-                                child: QuestionWidget(
-                                  question: surveyProvider.surveyQuestionsList[
+                            ),
+                            Expanded(
+                              child: _buildContainer(
+                                margin: EdgeInsets.all(10).copyWith(left: 0),
+                                QuestionWidget(
+                                  question: surveyProvider.questionList[
                                       surveyProvider.currentQuestionIndex],
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         );
                       }
                       return const Center(
-                          child: Text("No questions available"));
+                          child: Text("Please select a survey"));
                     },
                   ),
                 ),
@@ -213,13 +236,15 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildContainer(Widget child) {
+  Widget _buildContainer(Widget child,
+      {EdgeInsets? margin, EdgeInsets? padding, double? width}) {
     return Container(
-      padding: const EdgeInsets.all(15),
-      margin: const EdgeInsets.all(10),
+      width: width,
+      padding: padding ?? const EdgeInsets.all(15),
+      margin: margin ?? const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey.shade200),
       ),
       child: child,

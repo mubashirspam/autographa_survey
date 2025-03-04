@@ -1,50 +1,43 @@
 import 'package:flutter/material.dart';
-import '../model/survey_list_model.dart';
+import '../model/model.dart';
+import '../utils/utlis.dart';
 import 'repository.dart';
-import 'utils.dart';
 
+/// Provider class that manages the home screen state and API interactions
 class HomeProvider extends ChangeNotifier {
-  final Repository _repository = Repository();
-  LoadingState _state = LoadingState.idle;
-  List<SurveyList> _surveyList = [];
-  String? _error;
+  // ==================== PRIVATE VARIABLES ====================
+  final _repository = Repository();
 
-  // Getters
-  LoadingState get state => _state;
-  List<SurveyList> get surveyList => _surveyList;
-  String? get error => _error;
-  bool get isLoading => _state == LoadingState.loading;
+  // API Response states
+  ApiResponse<List<Response>> _allSurveysResponse = ApiResponse.idle();
 
-  Future<List<SurveyList>> getSurveyList() async {
-    try {
-      _state = LoadingState.loading;
-      _error = null;
-      notifyListeners();
+  // Selected survey state
 
-      final response = await _repository.getSurveys();
+  Response? _selectedResponse;
 
-      if (response.success && response.data != null) {
-        _surveyList = response.data!;
-        _state = LoadingState.idle;
-        return _surveyList;
-      } else {
-        _error = response.error ?? 'Failed to fetch surveys';
-        _state = LoadingState.error;
-        throw Exception(_error);
-      }
-    } catch (e) {
-      _error = 'Error processing survey data: ${e.toString()}';
-      _state = LoadingState.error;
-      notifyListeners();
-      throw Exception(_error);
-    } finally {
-      notifyListeners();
-    }
+  // ==================== GETTERS ====================
+
+  // Survey getters
+
+  Response? get selectedResponse => _selectedResponse;
+
+  ApiResponse<List<Response>> get surveyList => _allSurveysResponse;
+
+  // ==================== SURVEY METHODS ====================
+
+  void selectSurvey(int id) {
+    _selectedResponse = surveyList.data?.firstWhere((r) => r.id == id);
+    notifyListeners();
   }
 
-  void resetError() {
-    _error = null;
-    _state = LoadingState.idle;
+  Future<void> fetchAllSurveys({bool isRefresh = false}) async {
+    if (!isRefresh &&
+        (_allSurveysResponse.isLoading || _allSurveysResponse.isSuccess)) {
+      return;
+    }
+    _allSurveysResponse = ApiResponse.loading();
+    notifyListeners();
+    _allSurveysResponse = await _repository.fetchSurveyResponses('1');
     notifyListeners();
   }
 }

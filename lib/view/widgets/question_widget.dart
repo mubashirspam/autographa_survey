@@ -1,11 +1,12 @@
+import 'package:autographa_survey/model/model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../model/survey_question_model.dart';
+
 import '../../provider/survey_provider.dart';
-import '../../provider/utils.dart';
 
 class QuestionWidget extends StatefulWidget {
-  final SurveyQuestionModel question;
+  final double? width;
+  final QuestionModel question;
   final int index;
   final bool isChild;
 
@@ -14,6 +15,7 @@ class QuestionWidget extends StatefulWidget {
     required this.question,
     this.isChild = false,
     this.index = 0,
+    this.width,
   });
 
   @override
@@ -27,6 +29,7 @@ class _QuestionWidgetState extends State<QuestionWidget> {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Container(
+        width: widget.width,
         padding:
             widget.isChild ? const EdgeInsets.all(15) : const EdgeInsets.all(0),
         decoration: BoxDecoration(
@@ -60,7 +63,7 @@ class _QuestionWidgetState extends State<QuestionWidget> {
                 if (widget.isChild) const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    widget.question.questionText?.trim() ?? "",
+                    widget.question.text?.trim() ?? "",
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
@@ -72,6 +75,7 @@ class _QuestionWidgetState extends State<QuestionWidget> {
             ),
             const SizedBox(height: 24),
             _buildQuestionContent(),
+           
           ],
         ),
       ),
@@ -93,8 +97,7 @@ class _QuestionWidgetState extends State<QuestionWidget> {
 
   Widget _buildLongAnswer() {
     final provider = Provider.of<SurveyProvider>(context);
-    final currentAnswer =
-        provider.getTextAnswer(widget.question.questionId.toString());
+    final currentAnswer = provider.getTextAnswer(widget.question.id.toString());
 
     if (_controller.text != currentAnswer) {
       _controller.text = currentAnswer ?? '';
@@ -123,8 +126,9 @@ class _QuestionWidgetState extends State<QuestionWidget> {
       ),
       onChanged: (value) {
         provider.setAnswer(
-          widget.question.questionId.toString(),
+          widget.question.id.toString(),
           text: value,
+          isChecked: true,
         );
       },
     );
@@ -133,7 +137,7 @@ class _QuestionWidgetState extends State<QuestionWidget> {
   Widget _buildMultipleChoice() {
     final provider = Provider.of<SurveyProvider>(context);
     final selectedOptionId =
-        provider.getSelectedAnswer(widget.question.questionId.toString());
+        provider.getSelectedAnswer(widget.question.id.toString());
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -143,14 +147,15 @@ class _QuestionWidgetState extends State<QuestionWidget> {
           final option = widget.question.answerOptions?[index];
           if (option == null) return const SizedBox.shrink();
 
-          final isSelected = option.optionId?.toString() == selectedOptionId;
+          final isSelected = option.id?.toString() == selectedOptionId;
 
           return InkWell(
             onTap: () {
-              if (option.optionId != null) {
+              if (option.id != null) {
                 provider.setAnswer(
-                  widget.question.questionId.toString(),
-                  optionId: option.optionId.toString(),
+                  widget.question.id.toString(),
+                  optionId: option.id.toString(),
+                  isChecked: true,
                 );
               }
             },
@@ -226,9 +231,9 @@ class _QuestionWidgetState extends State<QuestionWidget> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (widget.question.childQuestions?.isNotEmpty ?? false) ...[
+        if (widget.question.children?.isNotEmpty ?? false) ...[
           const SizedBox(height: 24),
-          ...widget.question.childQuestions?.asMap().entries.map((entry) {
+          ...widget.question.children?.asMap().entries.map((entry) {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 24),
                   child: QuestionWidget(

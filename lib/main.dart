@@ -15,7 +15,6 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -28,11 +27,12 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        title: 'Autographa Survey App',
+        title: 'Autographa Survey',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primaryColor: Color(0XffDEAAFF),
-          scaffoldBackgroundColor: Colors.grey.shade100,
+          canvasColor: Color(0XffF9FAFB),
+          scaffoldBackgroundColor: Color(0XffF9FAFB),
           useMaterial3: true,
           brightness: Brightness.light,
           fontFamily: GoogleFonts.figtree().fontFamily,

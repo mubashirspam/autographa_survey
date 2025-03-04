@@ -1,92 +1,154 @@
-import 'dart:convert';
-import 'package:dio/dio.dart';
+import 'dart:developer';
 
-import '../model/survey_list_model.dart';
-import '../model/survey_question_model.dart';
-
-class ApiResponse<T> {
-  final T? data;
-  final String? error;
-  final bool success;
-
-  ApiResponse({this.data, this.error, required this.success});
-
-  factory ApiResponse.success(T data) {
-    return ApiResponse(data: data, success: true);
-  }
-
-  factory ApiResponse.error(String error) {
-    return ApiResponse(error: error, success: false);
-  }
-}
+import '../model/model.dart';
+import '../utils/utlis.dart';
 
 class Repository {
-  final Dio _dio;
-  static const String _baseUrl =
-      ''; // TODO: replace with actual URL
+  static final Repository _instance = Repository._internal();
+  factory Repository() => _instance;
+  Repository._internal();
 
-  Repository()
-      : _dio = Dio(BaseOptions(
-          baseUrl: _baseUrl,
-          headers: {'Content-Type': 'application/json'},
-          connectTimeout: const Duration(seconds: 5),
-          receiveTimeout: const Duration(seconds: 3),
-        ));
+  // ==================== PARTICIPANT API ====================
 
-  Future<ApiResponse<List<SurveyList>>> getSurveys() async {
-    try {
-      final response = await _dio.get('/surveys');
+  // /// Get participant by ID
+  // Future<ApiResponse<Participant>> fetchParticipant(String id) async {
+  //   final response = await ApiHelper.get<dynamic>('$epParticipant/$id');
 
-      if (response.statusCode == 200) {
-        return ApiResponse.success(
-            surveyListFromJson(json.encode(response.data)));
-      } else {
-        return ApiResponse.error(
-            'Failed to fetch surveys. Status code: ${response.statusCode}');
-      }
-    } on DioException catch (e) {
-      return ApiResponse.error('Network error: ${e.message}');
-    } catch (e) {
-      return ApiResponse.error('Error: ${e.toString()}');
+  //   if (response.isSuccess && response.data != null) {
+  //     log(response.data.toString());
+  //     final participant = Participant.fromJson(response.data);
+  //     return ApiResponse.success(participant);
+  //   }
+  //   return ApiResponse.error(response.error!);
+  // }
+
+  // ==================== SURVEY API ====================
+
+  /// Get all surveys
+  // Future<ApiResponse<List<Survey>>> getAllSurveys() async {
+  //   final response = await ApiHelper.get<List<dynamic>>(epSurvey);
+  //   if (response.isSuccess && response.data != null) {
+  //     final surveys = response.data!
+  //         .map((json) => Survey.fromJson(json as Map<String, dynamic>))
+  //         .toList();
+  //     return ApiResponse.success(surveys);
+  //   }
+  //   return ApiResponse.error(response.error!);
+  // }
+
+  // ==================== QUESTION API ====================
+
+  /// Get questions by survey ID
+  Future<ApiResponse<List<Question>>> fetchQuestionBySurvey(String id) async {
+    final response =
+        await ApiHelper.get<List<dynamic>>('$epQuestionBySurvey/$id');
+    if (response.isSuccess && response.data != null) {
+      final questions = response.data!
+          .map((json) => Question.fromJson(json as Map<String, dynamic>))
+          .toList();
+      return ApiResponse.success(questions);
+    }
+    return ApiResponse.error(response.error!);
+  }
+
+  // ==================== ANSWER OPTIONS API ====================
+
+  /// Get all answer options
+  Future<ApiResponse<List<AnswerOption>>> getAllAnswerOptions() async {
+    final response = await ApiHelper.get<List<dynamic>>(epAnswerOption);
+    if (response.isSuccess && response.data != null) {
+      final options = response.data!
+          .map((json) => AnswerOption.fromJson(json as Map<String, dynamic>))
+          .toList();
+      return ApiResponse.success(options);
+    }
+    return ApiResponse.error(response.error!);
+  }
+
+  /// Get answer options by question ID
+  Future<ApiResponse<List<AnswerOption>>> getAllAnswerOptionsByQuestion(
+      String questionId) async {
+    final response = await ApiHelper.get<List<dynamic>>(
+        "$epAnswerOptionByQuestion/$questionId");
+    if (response.isSuccess && response.data != null) {
+      final options = response.data!
+          .map((json) => AnswerOption.fromJson(json as Map<String, dynamic>))
+          .toList();
+      return ApiResponse.success(options);
+    }
+    return ApiResponse.error(response.error!);
+  }
+
+  // ==================== RESPONSE API ====================
+
+  /// Get responses by participant ID
+  Future<ApiResponse<List<Response>>> fetchSurveyResponses(String id) async {
+    final response =
+        await ApiHelper.get<List<dynamic>>('$epResponseByParticipant$id');
+
+    if (response.isSuccess && response.data != null) {
+      final responses = response.data!
+          .map((json) => Response.fromJson(json as Map<String, dynamic>))
+          .toList();
+      return ApiResponse.success(responses);
+    }
+    return ApiResponse.error(response.error!);
+  }
+
+  // // Create a new response
+  // Future<ApiResponse<Response>> postResponse(Response data) async {
+  //   final response = await ApiHelper.post(epResponse, data.toJson());
+  //   if (response.isSuccess && response.data != null) {
+  //     return ApiResponse.success(Response.fromJson(response.data));
+  //   } else {
+  //     return ApiResponse.error(response.error!);
+  //   }
+  // }
+
+  // ==================== RESPONSE ANSWERS API ====================
+
+  /// Get response answers by response ID
+  Future<ApiResponse<List<ResponseAnswer>>> fetchResponseAnswerByResponseId(
+      String id) async {
+    final response =
+        await ApiHelper.get<List<dynamic>>('$epAnswersByResponse/$id');
+    if (response.isSuccess && response.data != null) {
+      final answers = response.data!
+          .map((json) => ResponseAnswer.fromJson(json as Map<String, dynamic>))
+          .toList();
+      return ApiResponse.success(answers);
+    } else {
+      return ApiResponse.error(response.error!);
     }
   }
 
-  Future<ApiResponse<List<SurveyQuestionModel>>> fetchSurveyQuestions(
-      String surveyId) async {
-    try {
-      final response = await _dio.get('/questionNoptions/$surveyId');
+  /// Create a new response answer
+  Future<ApiResponse<ResponseAnswer>> submitSurveyAnswers(
+      ResponseAnswer data) async {
+    final response = await ApiHelper.post(epAnswers, data.toJson());
 
-      if (response.statusCode == 200) {
-        return ApiResponse.success(
-            surveyQuestionModelFromJson(json.encode(response.data)));
-      } else {
-        return ApiResponse.error(
-            'Failed to fetch survey questions. Status code: ${response.statusCode}');
-      }
-    } on DioException catch (e) {
-      return ApiResponse.error('Network error: ${e.message}');
-    } catch (e) {
-      return ApiResponse.error('Error: ${e.toString()}');
+    if (response.isSuccess && response.data != null) {
+      final answer = ResponseAnswer.fromJson(response.data);
+      log("submitSurveyAnswers:${answer.id} with QuestionId:${answer.question!.id}");
+      return ApiResponse.success(answer);
+    } else {
+      return ApiResponse.error(response.error!);
     }
   }
 
-  Future<ApiResponse<dynamic>> submitSurveyAnswers(String requestBody) async {
-    try {
-      final response = await _dio.post(
-        '/responseNanswers',
-        data: json.decode(requestBody), // Convert string to JSON
-      );
+  /// Update an existing response answer
+  Future<ApiResponse<ResponseAnswer>> updateSurveyAnswers(
+      ResponseAnswer data, int id) async {
+    final dataJson = data.toJson();
+    dataJson['id'] = id;
+    final response = await ApiHelper.put(epAnswers, dataJson);
 
-      if (response.statusCode == 200) {
-        return ApiResponse.success(response.data);
-      } else {
-        return ApiResponse.error(
-            'Failed to submit survey answers. Status code: ${response.statusCode}');
-      }
-    } on DioException catch (e) {
-      return ApiResponse.error('Network error: ${e.message}');
-    } catch (e) {
-      return ApiResponse.error('Error: ${e.toString()}');
+    if (response.isSuccess && response.data != null) {
+      final answer = ResponseAnswer.fromJson(response.data);
+      log("updateSurveyAnswers:${answer.id} with QuestionId:${answer.question!.id}");
+      return ApiResponse.success(answer);
+    } else {
+      return ApiResponse.error(response.error!);
     }
   }
 }
