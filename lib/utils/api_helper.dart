@@ -5,7 +5,7 @@ import 'api_response.dart';
 
 class ApiHelper {
   static final Dio _dio = Dio(BaseOptions(
-    baseUrl: 'http://13.127.225.82:8080', // Added /api to base URL
+    baseUrl: '', // Added /api to base URL
     connectTimeout: const Duration(seconds: 30),
     receiveTimeout: const Duration(seconds: 30),
     headers: {
