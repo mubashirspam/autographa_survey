@@ -3,7 +3,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import '../../model/response_model.dart';
 import '../../provider/home_provider.dart';
-import '../../provider/survey_provider.dart';
 import '../question_screens.dart';
 
 class ListItemCard extends StatelessWidget {

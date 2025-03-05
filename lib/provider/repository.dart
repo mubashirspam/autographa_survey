@@ -8,35 +8,6 @@ class Repository {
   factory Repository() => _instance;
   Repository._internal();
 
-  // ==================== PARTICIPANT API ====================
-
-  // /// Get participant by ID
-  // Future<ApiResponse<Participant>> fetchParticipant(String id) async {
-  //   final response = await ApiHelper.get<dynamic>('$epParticipant/$id');
-
-  //   if (response.isSuccess && response.data != null) {
-  //     log(response.data.toString());
-  //     final participant = Participant.fromJson(response.data);
-  //     return ApiResponse.success(participant);
-  //   }
-  //   return ApiResponse.error(response.error!);
-  // }
-
-  // ==================== SURVEY API ====================
-
-  /// Get all surveys
-  // Future<ApiResponse<List<Survey>>> getAllSurveys() async {
-  //   final response = await ApiHelper.get<List<dynamic>>(epSurvey);
-  //   if (response.isSuccess && response.data != null) {
-  //     final surveys = response.data!
-  //         .map((json) => Survey.fromJson(json as Map<String, dynamic>))
-  //         .toList();
-  //     return ApiResponse.success(surveys);
-  //   }
-  //   return ApiResponse.error(response.error!);
-  // }
-
-  // ==================== QUESTION API ====================
 
   /// Get questions by survey ID
   Future<ApiResponse<List<Question>>> fetchQuestionBySurvey(String id) async {
@@ -95,15 +66,6 @@ class Repository {
     return ApiResponse.error(response.error!);
   }
 
-  // // Create a new response
-  // Future<ApiResponse<Response>> postResponse(Response data) async {
-  //   final response = await ApiHelper.post(epResponse, data.toJson());
-  //   if (response.isSuccess && response.data != null) {
-  //     return ApiResponse.success(Response.fromJson(response.data));
-  //   } else {
-  //     return ApiResponse.error(response.error!);
-  //   }
-  // }
 
   // ==================== RESPONSE ANSWERS API ====================
 

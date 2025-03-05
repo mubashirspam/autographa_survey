@@ -20,7 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<HomeProvider>().fetchAllSurveys();
+      context.read<HomeProvider>().fetchAllSurveys(isRefresh: false);
     });
     super.initState();
   }

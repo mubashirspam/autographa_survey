@@ -18,7 +18,7 @@ class QuestionScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = Provider.of<SurveyProvider>(context, listen: false);
-      provider.loadQuestionsScreen(response);
+      provider.loadQuestionsScreen(response, isRefresh: false);
     });
     return Scaffold(
       // extendBody: true,
