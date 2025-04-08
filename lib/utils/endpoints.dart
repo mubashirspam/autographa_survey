@@ -1,7 +1,14 @@
+
+
+const String apiLogin = '/api/v1/auth/login';
+const String apiRefresh = '/api/v1/auth/refresh';
+
 // Survey endpoints
 const String epParticipant = '/Participant';
 
-const String epResponseByParticipant = '/Response/Participant/';
+
+
+const String epResponseByParticipant = '/Response/personId/';
 const String epResponse = '/Response';
 
 const String epAnswers = '/ResponseAnswers';

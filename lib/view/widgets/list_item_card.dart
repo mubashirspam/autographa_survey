@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../model/response_model.dart';
 import '../../provider/home_provider.dart';
-import '../question_screens.dart';
+import '../../provider/provider.dart';
+import '../../router/app_router.dart';
 
 class ListItemCard extends StatelessWidget {
   final int index;
@@ -39,19 +41,20 @@ class ListItemCard extends StatelessWidget {
           vertical: 8,
         ),
         onTap: () {
-          final homeProvider =
-              Provider.of<HomeProvider>(context, listen: false);
-          homeProvider.selectSurvey(surveyData.id!);
-          
+          // final homeProvider =
+          //     Provider.of<HomeProvider>(context, listen: false);
+          // homeProvider.selectSurvey(surveyData.id!);
+
           if (!isDesktop && surveyData.survey != null) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => QuestionScreen(
-                  response: surveyData,
-                ),
-              ),
-            );
+            // Use the surveyRoute method to navigate to the survey screen
+            // and pass the complete Response object as extra parameter
+            final surveyPath = ScreenPaths.questionRoute(surveyData.id);
+            context.go(surveyPath, extra: surveyData);
+          } else {
+            // For desktop view, just load the questions in the current view
+            final provider =
+                Provider.of<QuestionProvider>(context, listen: false);
+            provider.loadQuestionsScreen(surveyData.id.toString(), surveyData.survey!.id.toString());
           }
         },
         leading: Container(

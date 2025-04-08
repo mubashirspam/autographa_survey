@@ -1,8 +1,9 @@
 import 'package:autographa_survey/model/model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../provider/provider.dart';
 
-import '../../provider/survey_provider.dart';
+
 
 class QuestionWidget extends StatefulWidget {
   final double? width;
@@ -96,7 +97,7 @@ class _QuestionWidgetState extends State<QuestionWidget> {
   }
 
   Widget _buildLongAnswer() {
-    final provider = Provider.of<SurveyProvider>(context);
+    final provider = Provider.of<QuestionProvider>(context);
     final currentAnswer = provider.getTextAnswer(widget.question.id.toString());
 
     if (_controller.text != currentAnswer) {
@@ -135,7 +136,7 @@ class _QuestionWidgetState extends State<QuestionWidget> {
   }
 
   Widget _buildMultipleChoice() {
-    final provider = Provider.of<SurveyProvider>(context);
+    final provider = Provider.of<QuestionProvider>(context);
     final selectedOptionId =
         provider.getSelectedAnswer(widget.question.id.toString());
 

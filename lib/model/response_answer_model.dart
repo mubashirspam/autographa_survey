@@ -36,4 +36,21 @@ class ResponseAnswer {
         "answerOption": answerOption,
         "response": response?.toJson(),
       };
+      
+  /// Create a copy of this ResponseAnswer with optional new values
+  ResponseAnswer copyWith({
+    int? id,
+    String? answerText,
+    Question? question,
+    AnswerOption? answerOption,
+    Response? response,
+  }) {
+    return ResponseAnswer(
+      id: id ?? this.id,
+      answerText: answerText ?? this.answerText,
+      question: question ?? this.question,
+      answerOption: answerOption ?? this.answerOption,
+      response: response ?? this.response,
+    );
+  }
 }

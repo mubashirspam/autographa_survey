@@ -1,20 +1,21 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import '../../model/model.dart';
-import '../../provider/survey_provider.dart';
+import '../../provider/provider.dart';
+import '../../router/app_router.dart';
 
 class BottomAppbarWidget extends StatelessWidget {
-  final Response response;
+  final int responseId;
 
-  const BottomAppbarWidget({super.key, required this.response});
+  const BottomAppbarWidget({super.key, required this.responseId});
 
   @override
   Widget build(BuildContext context) {
     return BottomAppBar(
       color: const Color(0x00000000),
-      child: Consumer<SurveyProvider>(
+      child: Consumer<QuestionProvider>(
         builder: (context, provider, child) => Row(
           children: [
             if (!provider.isFirstQuestion)
@@ -51,7 +52,7 @@ class BottomAppbarWidget extends StatelessWidget {
                 ),
               ),
             if (!provider.isFirstQuestion) const SizedBox(width: 30),
-            SurveyButton(provider: provider, response: response),
+            SurveyButton(provider: provider, responseId: responseId),
           ],
         ),
       ),
@@ -60,10 +61,11 @@ class BottomAppbarWidget extends StatelessWidget {
 }
 
 class SurveyButton extends StatelessWidget {
-  final SurveyProvider provider;
-  final dynamic response;
+  final int responseId;
+  final QuestionProvider provider;
 
-  const SurveyButton({required this.provider, required this.response});
+  const SurveyButton(
+      {super.key, required this.provider, required this.responseId});
 
   @override
   Widget build(BuildContext context) {
@@ -81,22 +83,23 @@ class SurveyButton extends StatelessWidget {
                         'Are you sure you want to submit your answers?'),
                     actions: [
                       CupertinoDialogAction(
-                        onPressed: () => Navigator.of(context).pop(),
+                        onPressed: () => Navigator.of(context)
+                            .pop(), // Just close the dialog
                         isDefaultAction: true,
                         child: const Text('Cancel'),
                       ),
                       CupertinoDialogAction(
                         onPressed: () async {
-                         
-                          await provider.submitSurveyAnswers(response);
+                          await provider.submitSurveyAnswers(responseId);
                           if (provider.submitAnswerResponse.isSuccess &&
                               context.mounted) {
-                            Navigator.of(context).pop();
-                             Navigator.of(context).pop();
+                            Navigator.of(context).pop(); // Close the dialog
+                            context.go(ScreenPaths
+                                .home); // Navigate to home using go_router
                           }
                         },
                         isDestructiveAction: true,
-                        child:  const Text('Submit'),
+                        child: const Text('Submit'),
                       ),
                     ],
                   );
@@ -107,7 +110,8 @@ class SurveyButton extends StatelessWidget {
                         'Please answer all required questions before submitting.'),
                     actions: [
                       CupertinoDialogAction(
-                        onPressed: () => Navigator.of(context).pop(),
+                        onPressed: () => Navigator.of(context)
+                            .pop(), // Just close the dialog
                         isDefaultAction: true,
                         child: const Text('OK'),
                       ),

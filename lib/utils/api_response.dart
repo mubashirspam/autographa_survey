@@ -13,8 +13,9 @@ class ApiResponse<T> {
 
   factory ApiResponse.loading() => ApiResponse._(state: LoadingState.loading);
   
-  factory ApiResponse.success(T data) => ApiResponse._(
+  factory ApiResponse.success(T data, {String? message}) => ApiResponse._(
     data: data,
+    error: message, // Using error field to store success messages as well
     state: LoadingState.success,
   );
   
