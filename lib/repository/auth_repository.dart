@@ -1,4 +1,6 @@
 import 'package:autographa_survey/utils/endpoints.dart';
+import 'package:flutter/foundation.dart';
+import '../config/environment_config.dart';
 import '../model/model.dart';
 import '../utils/api_helper.dart';
 import '../utils/api_response.dart';
@@ -55,12 +57,17 @@ class AuthRepository {
 
   Future<ApiResponse<RefreshModel>> refresh(String refreshToken) async {
     try {
+      // Use staging API only in development environment
+      final useStaging = EnvironmentConfig.isDevelopment();
+      
+      debugPrint('Refreshing token using ${useStaging ? 'staging' : 'production'} API');
+      
       final response = await ApiHelper.post<Map<String, dynamic>>(
           apiRefresh,
           {
             'refreshToken': refreshToken,
           },
-          useStaging: true);
+          useStaging: useStaging);
 
       if (response.isSuccess && response.data != null) {
         final refreshModel = RefreshModel.fromJson(response.data!);
@@ -73,9 +80,11 @@ class AuthRepository {
 
         return ApiResponse.success(refreshModel);
       } else {
+        debugPrint('Token refresh API error: ${response.error}');
         return ApiResponse.error(response.error ?? 'Token refresh failed');
       }
     } catch (e) {
+      debugPrint('Token refresh exception: ${e.toString()}');
       return ApiResponse.error('Token refresh failed: ${e.toString()}');
     }
   }

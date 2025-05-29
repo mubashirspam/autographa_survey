@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// A utility class for handling local storage operations using SharedPreferences
@@ -8,14 +9,17 @@ class SurveyLocalStorage {
   static const String _lastFetchTimeKey = 'last_fetch_time';
 
   /// Save survey list data to local storage
-  static Future<bool> saveSurveyList(String personId, List<dynamic> data) async {
+  static Future<bool> saveSurveyList(
+      String personId, List<dynamic> data) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final jsonString = jsonEncode(data);
-      
+      log('Saving survey list to local storage: $jsonString');
+
       // Save the current timestamp along with the data
-      await prefs.setString(_lastFetchTimeKey, DateTime.now().toIso8601String());
-      
+      await prefs.setString(
+          _lastFetchTimeKey, DateTime.now().toIso8601String());
+
       return await prefs.setString("${_surveyListKey}_$personId", jsonString);
     } catch (e) {
       print('Error saving survey list: $e');
@@ -28,11 +32,11 @@ class SurveyLocalStorage {
     try {
       final prefs = await SharedPreferences.getInstance();
       final jsonString = prefs.getString("${_surveyListKey}_$personId");
-      
+
       if (jsonString == null) {
         return null;
       }
-      
+
       return jsonDecode(jsonString) as List<dynamic>;
     } catch (e) {
       print('Error getting survey list: $e');
@@ -45,11 +49,11 @@ class SurveyLocalStorage {
     try {
       final prefs = await SharedPreferences.getInstance();
       final timeString = prefs.getString(_lastFetchTimeKey);
-      
+
       if (timeString == null) {
         return null;
       }
-      
+
       return DateTime.parse(timeString);
     } catch (e) {
       print('Error getting last fetch time: $e');
@@ -58,13 +62,14 @@ class SurveyLocalStorage {
   }
 
   /// Check if cached data is stale (older than specified duration)
-  static Future<bool> isCacheStale({Duration staleDuration = const Duration(hours: 1)}) async {
+  static Future<bool> isCacheStale(
+      {Duration staleDuration = const Duration(hours: 1)}) async {
     final lastFetchTime = await getLastFetchTime();
-    
+
     if (lastFetchTime == null) {
       return true;
     }
-    
+
     final now = DateTime.now();
     return now.difference(lastFetchTime) > staleDuration;
   }

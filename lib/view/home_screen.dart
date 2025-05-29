@@ -55,180 +55,60 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          if (constraints.maxWidth < 700) {
-            return SafeArea(
-              child: Consumer<HomeProvider>(
-                builder: (context, provider, child) {
-                  return RefreshIndicator(
-                    onRefresh: () async {
-                      provider.fetchAllSurveysByUserId();
-                    },
-                    child: provider.surveyList.isLoading
-                        ? const ShimmerLoading()
-                        : provider.surveyList.isError ||
-                                provider.surveyList.data?.isEmpty == true
-                            ? Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(provider.surveyList.error ??
-                                        'Error fetching surveys'),
-                                    const SizedBox(height: 16),
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        provider.fetchAllSurveysByUserId();
-                                      },
-                                      child: const Text('Retry'),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : provider.surveyList.isSuccess &&
-                                    provider.surveyList.data!.isNotEmpty
-                                ? ListView.builder(
-                                    padding: const EdgeInsets.all(10),
-                                    itemCount: provider.surveyList.data!.length,
-                                    itemBuilder: (context, index) {
-                                      return ListItemCard(
-                                          isDesktop: false,
-                                          index: index,
-                                          surveyData:
-                                              provider.surveyList.data![index],
-                                          isSelected: false);
+          return SafeArea(
+            child: Consumer<HomeProvider>(
+              builder: (context, provider, child) {
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    provider.fetchAllSurveysByUserId();
+                  },
+                  child: provider.surveyList.isLoading
+                      ? const ShimmerLoading()
+                      : provider.surveyList.isError ||
+                              provider.surveyList.data?.isEmpty == true
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(provider.surveyList.error ??
+                                      'Error fetching surveys'),
+                                  const SizedBox(height: 16),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      provider.fetchAllSurveysByUserId();
                                     },
-                                  )
-                                : const SizedBox(),
-                  );
-                },
-              ),
-            );
-          }
-          return const SizedBox();
-
-          // return SafeArea(
-          //   child: Row(
-          //     children: [
-          //       SizedBox(
-          //         width: 400,
-          //         child: _buildContainer(
-          //           Consumer<HomeProvider>(
-          //             builder: (context, provider, child) {
-          //               return RefreshIndicator(
-          //                 onRefresh: () async {
-          //                   provider.fetchAllSurveysByUserId();
-          //                   return;
-          //                 },
-          //                 child: provider.surveyList.isLoading &&
-          //                         provider.surveyList.data?.isEmpty == true
-          //                     ? const ShimmerLoading()
-          //                     : provider.surveyList.isError ||
-          //                             provider.surveyList.data?.isEmpty == true
-          //                         ? Center(
-          //                             child: Column(
-          //                               mainAxisAlignment:
-          //                                   MainAxisAlignment.center,
-          //                               children: [
-          //                                 Text(provider.surveyList.error ??
-          //                                     'Error fetching surveys'),
-          //                                 const SizedBox(height: 16),
-          //                                 ElevatedButton(
-          //                                   onPressed: () {
-          //                                     provider
-          //                                         .fetchAllSurveysByUserId();
-          //                                   },
-          //                                   child: const Text('Retry'),
-          //                                 ),
-          //                               ],
-          //                             ),
-          //                           )
-          //                         : provider.surveyList.isSuccess &&
-          //                                 provider.surveyList.data!.isNotEmpty
-          //                             ? ListView.builder(
-          //                                 // padding: const EdgeInsets.all(10),
-          //                                 itemCount:
-          //                                     provider.surveyList.data!.length,
-          //                                 itemBuilder: (context, index) {
-          //                                   return Padding(
-          //                                     padding: const EdgeInsets.only(
-          //                                         bottom: 8),
-          //                                     child: ListItemCard(
-          //                                       isDesktop: true,
-          //                                       index: index,
-          //                                       surveyData: provider
-          //                                           .surveyList.data![index],
-          //                                       isSelected: provider
-          //                                               .selectedResponse?.id ==
-          //                                           provider.surveyList
-          //                                               .data![index].id,
-          //                                     ),
-          //                                   );
-          //                                 },
-          //                               )
-          //                             : const SizedBox(),
-          //               );
-          //             },
-          //           ),
-          //         ),
-          //       ),
-          //       Expanded(
-          //         flex: 3,
-          //         child: Consumer<QuestionProvider>(
-          //           builder: (context, surveyProvider, child) {
-          //             if (surveyProvider.questionResponse.isLoading) {
-          //               return const Center(child: CircularProgressIndicator());
-          //             }
-          //             if (surveyProvider.questionResponse.isError) {
-          //               return Center(
-          //                   child: Text(surveyProvider.questionResponse.error ??
-          //                       " Something went wrong"));
-          //             }
-          //             if (surveyProvider.questionResponse.isSuccess &&
-          //                 surveyProvider.questionList.isNotEmpty) {
-          //               return Column(
-          //                 crossAxisAlignment: CrossAxisAlignment.start,
-          //                 children: [
-          //                   _buildContainer(
-          //                     padding: EdgeInsets.all(0),
-          //                     margin: EdgeInsets.all(10)
-          //                         .copyWith(left: 0, bottom: 0),
-          //                     Row(
-          //                       children: [
-          //                         SizedBox(width: 16),
-          //                         Expanded(
-          //                           flex: 3,
-          //                           child: buildHeaderText(
-          //                               surveyProvider.currentQuestionIndex + 1,
-          //                               surveyProvider.questionList.length),
-          //                         ),
-          //                         const SizedBox(width: 20),
-          //                         Expanded(
-          //                           flex: 1,
-          //                           child: BottomAppbarWidget(
-          //                               responseId: response.id),
-          //                         ),
-          //                       ],
-          //                     ),
-          //                   ),
-          //                   Expanded(
-          //                     child: _buildContainer(
-          //                       margin: EdgeInsets.all(10).copyWith(left: 0),
-          //                       QuestionWidget(
-          //                         question: surveyProvider.questionList[
-          //                             surveyProvider.currentQuestionIndex],
-          //                       ),
-          //                     ),
-          //                   ),
-          //                 ],
-          //               );
-          //             }
-          //             return const Center(
-          //                 child: Text("Please select a survey"));
-          //           },
-          //         ),
-          //       ),
-          //     ],
-          //   ),
-          // );
+                                    child: const Text('Retry'),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : provider.surveyList.isSuccess &&
+                                  provider.surveyList.data!.isNotEmpty
+                              ? Center(
+                                  child: SizedBox(
+                                    width: constraints.maxWidth < 600
+                                        ? double.maxFinite
+                                        : 600,
+                                    child: ListView.builder(
+                                      padding: const EdgeInsets.all(10),
+                                      itemCount:
+                                          provider.surveyList.data!.length,
+                                      itemBuilder: (context, index) {
+                                        return ListItemCard(
+                                            isDesktop: false,
+                                            index: index,
+                                            surveyData: provider
+                                                .surveyList.data![index],
+                                            isSelected: false);
+                                      },
+                                    ),
+                                  ),
+                                )
+                              : const SizedBox(),
+                );
+              },
+            ),
+          );
         },
       ),
     );
@@ -372,27 +252,6 @@ class _HomeScreenState extends State<HomeScreen> {
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
       subtitle: Text(value),
       dense: true,
-    );
-  }
-
-  Widget _buildContainer(Widget child,
-      {EdgeInsets? margin, EdgeInsets? padding, double? width}) {
-    return Container(
-      width: width,
-      margin: margin ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: padding ?? const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: child,
     );
   }
 }

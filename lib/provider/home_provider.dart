@@ -46,6 +46,7 @@ class HomeProvider extends ChangeNotifier {
       _repository.fetchSurveyResponses(userId.toString()).listen(
         (response) {
           log('Received survey response update');
+         
           _allSurveysResponse = response;
           notifyListeners();
         },

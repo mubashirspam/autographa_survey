@@ -3,7 +3,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../model/response_model.dart';
-import '../../provider/home_provider.dart';
 import '../../provider/provider.dart';
 import '../../router/app_router.dart';
 
@@ -80,7 +79,7 @@ class ListItemCard extends StatelessWidget {
           style: TextStyle(fontWeight: FontWeight.w800),
         ),
         subtitle: Text(
-          'Autographa',
+          surveyData.linkComment ?? '',
           style: TextStyle(
               color: isSelected && isDesktop ? Colors.white : Colors.grey),
         ),

@@ -32,14 +32,18 @@ class LoginScreen extends StatelessWidget {
                     top: 10,
                     right: 10,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: Colors.red.withOpacity(0.7),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: const Text(
                         'DEV MODE',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12),
                       ),
                     ),
                   ),
@@ -82,8 +86,10 @@ class LoginWidget extends StatefulWidget {
 
 class _LoginWidgetState extends State<LoginWidget> {
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController(text: 'mentor2@autographa.io');
-  final _passwordController = TextEditingController(text: 'mentor@123');
+  final _usernameController = TextEditingController(
+    
+  );
+  final _passwordController = TextEditingController();
 
   @override
   void dispose() {
@@ -119,7 +125,8 @@ class _LoginWidgetState extends State<LoginWidget> {
       final password = _passwordController.text;
 
       // Pass context to the login method for navigation after successful login
-      Provider.of<AuthProvider>(context, listen: false).login(email, password, context: context);
+      Provider.of<AuthProvider>(context, listen: false)
+          .login(email, password, context: context);
     }
   }
 

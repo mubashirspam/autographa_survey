@@ -27,12 +27,12 @@ class EnvironmentConfig {
 
     switch (env) {
       case Environment.development:
-        _baseUrl = 'http://13.235.154.75:8080';
+        _baseUrl = 'https://backend.staging.autographa.io/survey';
         _baseUrl2 = 'https://api.staging.autographa.io';
         _enableLogging = true;
         break;
       case Environment.production:
-        _baseUrl = 'http://43.205.173.154:8443';
+        _baseUrl = 'https://backend.autographa.io/survey';
         _baseUrl2 = 'https://api.autographa.io';
         _enableLogging = false;
         break;

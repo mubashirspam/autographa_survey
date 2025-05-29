@@ -16,7 +16,7 @@ void main() {
   // Read from dart-define or default to development
   final String envName = const String.fromEnvironment(
     'ENVIRONMENT',
-    defaultValue: 'production',
+    defaultValue: 'development',
   );
 
   final env = envName == 'production'
@@ -66,11 +66,11 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
           brightness: Brightness.light,
           fontFamily: GoogleFonts.figtree().fontFamily,
+          
         ),
         // Using the router configuration
         routeInformationProvider: appRouter.routeInformationProvider,
         routeInformationParser: appRouter.routeInformationParser,
-
         routerDelegate: appRouter.routerDelegate,
       ),
     );

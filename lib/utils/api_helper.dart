@@ -8,7 +8,6 @@ import 'token_manager.dart';
 
 class ApiHelper {
   static final Dio _dio = Dio(BaseOptions(
-    // baseUrl: 'http://43.205.173.154:8443', 
     baseUrl: EnvironmentConfig.baseUrl,
     connectTimeout: const Duration(seconds: 30),
     receiveTimeout: const Duration(seconds: 30),

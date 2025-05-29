@@ -23,7 +23,11 @@ class QuestionScreen extends StatelessWidget {
     return Scaffold(
       // extendBody: true,
       backgroundColor: Colors.white,
-      bottomNavigationBar: BottomAppbarWidget(responseId: responseId),
+      bottomNavigationBar: LayoutBuilder(
+        builder: (context, constraints) => constraints.maxWidth > 600
+            ? const SizedBox()
+            : BottomAppbarWidget(responseId: responseId),
+      ),
       appBar: AppBar(
           backgroundColor: Colors.white,
           title: Consumer<HomeProvider>(builder: (context, provider, child) {
@@ -63,26 +67,46 @@ class QuestionScreen extends StatelessWidget {
           }
           if (questionProvider.questionResponse.isSuccess &&
               questionProvider.questionList.isNotEmpty) {
-           
-
-            return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildHeaderText(questionProvider.currentQuestionIndex + 1,
-                      questionProvider.questionList.length),
-                  const SizedBox(height: 20),
-                  Expanded(
-                    child: QuestionWidget(
-                      question: questionProvider
-                          .questionList[questionProvider.currentQuestionIndex],
-                    ),
-                  ),
-                  // SizedBox(height: 100)
-                ],
-              ),
-            );
+            return LayoutBuilder(
+                builder: (context, constraints) => Center(
+                      child: SizedBox(
+                        width:
+                            constraints.maxWidth < 600 ? double.maxFinite : 600,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: buildHeaderText(
+                                          questionProvider
+                                                  .currentQuestionIndex +
+                                              1,
+                                          questionProvider.questionList.length),
+                                    ),
+                                    if (constraints.maxWidth > 600)
+                                      Expanded(
+                                          child: BottomAppbarWidget(
+                                              responseId: responseId))
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              Expanded(
+                                child: QuestionWidget(
+                                  question: questionProvider.questionList[
+                                      questionProvider.currentQuestionIndex],
+                                ),
+                              ),
+                              // SizedBox(height: 100)
+                            ],
+                          ),
+                        ),
+                      ),
+                    ));
           }
           return const Center(child: Text("No questions available"));
         },

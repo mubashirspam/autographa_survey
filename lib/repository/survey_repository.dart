@@ -38,16 +38,39 @@ class SurveyRepository {
           final response =
               await ApiHelper.get<List<dynamic>>('$epResponseByParticipant$id');
 
-          // log('Fetched survey responses from network ${response}');
-
           if (response.isSuccess && response.data != null) {
-            final responses = response.data!
+            // Filter out any null or invalid entries before creating Response objects
+            final validData = response.data!.where((json) => 
+                json != null && json is Map<String, dynamic>).toList();
+            
+            debugPrint('Processing ${validData.length} valid responses');
+            
+            // Create Response objects from valid JSON data
+            final responses = validData
                 .map((json) => Response.fromJson(json as Map<String, dynamic>))
                 .toList();
-
-            // Save to local storage
-            await SurveyLocalStorage.saveSurveyList(id,
-                responses.map((r) => r.toJson()).toList());
+            
+            debugPrint('Created ${responses.length} Response objects');
+            
+            // Convert to JSON safely with null checks
+            final jsonList = responses
+                .map((r) {
+                  try {
+                    return r.toJson(); // Convert each response to JSON
+                  } catch (e) {
+                    debugPrint('Error converting response to JSON: $e');
+                    return null; // Return null for failed conversions
+                  }
+                })
+                .where((json) => json != null) // Filter out any null JSON objects
+                .toList();
+            
+            debugPrint('Saving ${jsonList.length} responses to local storage');
+            
+            // Save to local storage if we have valid JSON data
+            if (jsonList.isNotEmpty) {
+              await SurveyLocalStorage.saveSurveyList(id, jsonList);
+            }
 
             // Emit updated data from network
             debugPrint('Emitting fresh survey responses from network');

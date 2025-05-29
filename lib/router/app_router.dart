@@ -32,10 +32,13 @@ class ScreenPaths {
 final appRouter = GoRouter(
   initialLocation: ScreenPaths.splash,
   debugLogDiagnostics: true,
+  // Add redirect timeout to prevent the app from getting stuck
+  redirectLimit: 5,
   routes: [
     GoRoute(
       path: ScreenPaths.splash,
       redirect: (_, __) => ScreenPaths.login,
+      builder: (context, state) => const LoginScreen(),
     ),
     GoRoute(
       path: ScreenPaths.login,
@@ -107,6 +110,13 @@ class PageNotFound extends StatelessWidget {
               onPressed: () => context.go(ScreenPaths.login),
               child: const Text('Go to Login'),
             ),
+            TextButton(
+                onPressed: () {
+                  final authProvider =
+                      Provider.of<AuthProvider>(context, listen: false);
+                  authProvider.logout();
+                },
+                child: const Text('Logout'))
           ],
         ),
       ),
@@ -122,21 +132,29 @@ Future<String?> handleRedirect(
   final authProvider = Provider.of<AuthProvider>(context, listen: false);
   await authProvider.initAuthState();
   final bool isUserSignedIn = authProvider.isAuthenticated;
+  debugPrint('handleRedirect called');
   debugPrint('isUserSignedIn: $isUserSignedIn');
   debugPrint('state.uri.path: ${state.uri.path}');
 
+  // Always redirect from splash to login
+  if (state.uri.path == ScreenPaths.splash) {
+    debugPrint('Redirecting from splash to login');
+    return ScreenPaths.login;
+  }
+
+  // If not logged in and not on login page, go to login
   if (state.uri.path != ScreenPaths.login && !isUserSignedIn) {
     debugPrint('Redirecting from ${state.uri.path} to ${ScreenPaths.login}.');
     _initialDeeplink ??= state.uri.toString();
     return ScreenPaths.login;
   }
 
-  if (isUserSignedIn &&
-      (state.uri.path == ScreenPaths.login ||
-          state.uri.path == ScreenPaths.splash)) {
+  // If logged in and on login page, go to home
+  if (isUserSignedIn && state.uri.path == ScreenPaths.login) {
     debugPrint('Redirecting from ${state.uri.path} to ${ScreenPaths.home}');
     return ScreenPaths.home;
   }
 
-  return null; 
+  debugPrint('No redirect needed');
+  return null;
 }
