@@ -16,7 +16,7 @@ void main() {
   // Read from dart-define or default to development
   final String envName = const String.fromEnvironment(
     'ENVIRONMENT',
-    defaultValue: 'development',
+    defaultValue: 'production',
   );
 
   final env = envName == 'production'
